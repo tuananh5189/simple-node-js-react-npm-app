@@ -8,8 +8,6 @@ pipeline {
     environment {
         CI = 'true'
         DEPLOY_URL = 'http://localhost:3000'
-        APP_NAME = 'simple-node-app'
-        APP_PORT = '3000'
     }
     
     stages {
@@ -28,40 +26,25 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Stop and remove existing container
-                    sh """
-                        docker stop ${env.APP_NAME} || true
-                        docker rm ${env.APP_NAME} || true
-                    """
+                    // Stop existing container
+                    sh 'docker stop simple-app || true'
+                    sh 'docker rm simple-app || true'
                     
                     // Build new image
-                    sh "docker build -t ${env.APP_NAME}:latest ."
+                    sh 'docker build -t simple-app .'
                     
                     // Run new container
-                    sh """
-                        docker run -d \
-                            --name ${env.APP_NAME} \
-                            -p ${env.APP_PORT}:3000 \
-                            --restart unless-stopped \
-                            ${env.APP_NAME}:latest
-                    """
+                    sh 'docker run -d --name simple-app -p 3000:3000 simple-app'
                 }
             }
         }
-        
+
         stage('Health Check') {
             steps {
                 script {
                     sleep(20)
-                    
-                    // Test the deployed app
                     sh 'curl -f http://localhost:3000 || echo "App not ready"'
-                    
-                    // Show container status
-                    sh "docker ps | grep ${env.APP_NAME}"
-                    
-                    // Show container logs
-                    sh "docker logs ${env.APP_NAME} --tail 10"
+                    sh 'docker ps | grep simple-app'
                 }
             }
         }
@@ -71,11 +54,7 @@ pipeline {
         success {
             echo "🎉 Deployment successful!"
             echo "🔗 Access app at: http://localhost:3000"
-            echo "🐳 Container: ${env.APP_NAME}"
-        }
-        failure {
-            echo "❌ Pipeline failed"
-            sh "docker logs ${env.APP_NAME} || echo 'No container logs'"
+            echo "🐳 Container status: docker-compose ps"
         }
     }
 }
