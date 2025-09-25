@@ -7,24 +7,7 @@ pipeline {
     }
     
     triggers {
-        // Poll SCM mỗi phút kiểm tra commit mới
         pollSCM('* * * * *')
-        
-        // Hoặc các option khác:
-        // pollSCM('H/2 * * * *')    // Mỗi 2 phút
-        // pollSCM('H/5 * * * *')    // Mỗi 5 phút  
-        // pollSCM('H * * * *')      // Mỗi giờ
-        // pollSCM('H H * * *')      // Mỗi ngày
-        
-        // Có thể kết hợp với githubPush
-        // githubPush()
-    }
-
-    post {
-        always {
-            echo "Build triggered by: ${env.BUILD_CAUSE}"
-            echo "Current time: ${new Date()}"
-        }
     }
     
     environment {
@@ -50,13 +33,20 @@ pipeline {
         }
     }
     
-    // Thêm post actions để log polling activity
+    // Chỉ một section post duy nhất
     post {
         always {
             echo "Build triggered by: ${env.BUILD_CAUSE}"
+            echo "Current time: ${new Date()}"
         }
         changed {
             echo "Repository has changes, build executed"
+        }
+        success {
+            echo "Pipeline completed successfully"
+        }
+        failure {
+            echo "Pipeline failed"
         }
     }
 }
