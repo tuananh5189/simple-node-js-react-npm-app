@@ -7,7 +7,17 @@ pipeline {
     }
     
     triggers {
-        githubPush()  // Auto trigger khi có push
+        // Poll SCM mỗi phút kiểm tra commit mới
+        pollSCM('* * * * *')
+        
+        // Hoặc các option khác:
+        // pollSCM('H/2 * * * *')    // Mỗi 2 phút
+        // pollSCM('H/5 * * * *')    // Mỗi 5 phút  
+        // pollSCM('H * * * *')      // Mỗi giờ
+        // pollSCM('H H * * *')      // Mỗi ngày
+        
+        // Có thể kết hợp với githubPush
+        // githubPush()
     }
     
     environment {
@@ -30,6 +40,16 @@ pipeline {
                 sh './jenkins/scripts/deliver.sh'
                 sh './jenkins/scripts/kill.sh'
             }
+        }
+    }
+    
+    // Thêm post actions để log polling activity
+    post {
+        always {
+            echo "Build triggered by: ${env.BUILD_CAUSE}"
+        }
+        changed {
+            echo "Repository has changes, build executed"
         }
     }
 }
