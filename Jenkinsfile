@@ -12,6 +12,7 @@ pipeline {
     
     environment {
         CI = 'true'
+        DEPLOY_URL = 'http://localhost:3000'
     }
     
     stages {
@@ -44,6 +45,7 @@ pipeline {
         }
         success {
             echo "Pipeline completed successfully"
+            echo "🔗 Application URL: ${env.DEPLOY_URL}"
         }
         failure {
             echo "Pipeline failed"
