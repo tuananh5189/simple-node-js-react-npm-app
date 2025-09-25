@@ -19,6 +19,13 @@ pipeline {
         // Có thể kết hợp với githubPush
         // githubPush()
     }
+
+    post {
+        always {
+            echo "Build triggered by: ${env.BUILD_CAUSE}"
+            echo "Current time: ${new Date()}"
+        }
+    }
     
     environment {
         CI = 'true'
